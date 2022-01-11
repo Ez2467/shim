@@ -134,10 +134,24 @@ replacement_start_image(EFI_HANDLE image_handle, UINTN *exit_data_size, CHAR16 *
 static EFI_STATUS EFIAPI
 exit_boot_services(EFI_HANDLE image_key, UINTN map_key)
 {
+	static bool called = false;
+
 	if (loader_is_participating ||
 	    verification_method == VERIFIED_BY_HASH) {
 		unhook_system_services();
 		EFI_STATUS efi_status;
+
+		/*
+		 * The first attempt to call ExitBootServices will probably
+		 * fail, but we can't guarantee that and it's forbidden to
+		 * call any other boot services after the first attempt. So
+		 * cap the PCRs before the first attempt, and skip doing so
+		 * on any further attempts
+		 */
+		if (called == false) {
+			tpm_cap_pcrs();
+			called = true;
+		}
 		efi_status = gBS->ExitBootServices(image_key, map_key);
 		if (EFI_ERROR(efi_status))
 			hook_system_services(systab);

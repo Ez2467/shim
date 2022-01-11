@@ -15,6 +15,7 @@ EFI_STATUS tpm_log_pe(EFI_PHYSICAL_ADDRESS buf, UINTN size,
 		      UINT8 *sha1hash, UINT8 pcr);
 
 EFI_STATUS tpm_measure_variable(CHAR16 *dbname, EFI_GUID guid, UINTN size, void *data);
+EFI_STATUS tpm_cap_pcrs(void);
 
 typedef struct {
   uint8_t Major;
@@ -174,6 +175,7 @@ typedef struct efi_tpm2_protocol efi_tpm2_protocol_t;
 
 typedef UINT32                     TCG_EVENTTYPE;
 
+#define EV_SEPARATOR                        ((TCG_EVENTTYPE) 0x00000004)
 #define EV_EFI_EVENT_BASE                   ((TCG_EVENTTYPE) 0x80000000)
 #define EV_EFI_VARIABLE_DRIVER_CONFIG       (EV_EFI_EVENT_BASE + 1)
 #define EV_EFI_VARIABLE_BOOT                (EV_EFI_EVENT_BASE + 2)

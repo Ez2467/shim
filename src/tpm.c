@@ -345,6 +345,28 @@ EFI_STATUS tpm_measure_variable(CHAR16 *VarName, EFI_GUID VendorGuid, UINTN VarS
 					   VarData);
 }
 
+/*
+ * cap all the PCRs that shim potentially touches - this ensures that the
+ * OS can ensure that a sequence of measurements occurred during shim's
+ * execution and that none were added by userland later on
+ */
+EFI_STATUS tpm_cap_pcrs(void)
+{
+	EFI_STATUS efi_status;
+	int cap = 0;
+
+	efi_status = tpm_log_event_raw((EFI_PHYSICAL_ADDRESS)&cap, sizeof(cap),
+				       4, (char *)&cap, sizeof(cap),
+				       EV_SEPARATOR, NULL);
+	efi_status |= tpm_log_event_raw((EFI_PHYSICAL_ADDRESS)&cap, sizeof(cap),
+					7, (char *)&cap, sizeof(cap),
+					EV_SEPARATOR, NULL);
+	efi_status |= tpm_log_event_raw((EFI_PHYSICAL_ADDRESS)&cap, sizeof(cap),
+					14, (char *)&cap, sizeof(cap),
+					EV_SEPARATOR, NULL);
+	return efi_status;
+}
+
 EFI_STATUS
 fallback_should_prefer_reset(void)
 {

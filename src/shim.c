@@ -2590,6 +2590,8 @@ shim_fini(void)
 	if (load_options_size > 0 && second_stage)
 		FreePool(second_stage);
 
+	tpm_cap_pcrs();
+
 	console_fini();
 }
 
